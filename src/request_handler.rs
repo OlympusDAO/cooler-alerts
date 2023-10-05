@@ -5,6 +5,7 @@ use serde::{Serialize, Deserialize, de};
 use chrono::{Duration, Utc};
 
 // -- API AUTHENTICATION --------------------------------------------------------------------------
+
 pub struct AccessToken {
     token: String,
     lifespan_in_seconds: i64,
@@ -74,6 +75,7 @@ pub async fn refresh_bearer_token(access_token: &mut AccessToken) -> Result<(), 
 
 
 // -- CUSTOM AGENT LOGIC --------------------------------------------------------------------------
+
 #[derive(Serialize, Debug)]
 pub struct RequestBody {
     #[serde(rename = "agentType")]
