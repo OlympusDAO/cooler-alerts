@@ -2,6 +2,7 @@ pub mod commands;
 
 use serenity::async_trait;
 use serenity::model::prelude::*;
+use serenity::builder::CreateEmbed;
 use serenity::model::application::command::Command;
 use serenity::model::application::interaction::{Interaction, InteractionResponseType};
 use serenity::framework::standard::macros::{command, group};
@@ -30,18 +31,18 @@ impl EventHandler for Bot {
 
             let user_id = command.user.id.0 as i64;
 
-            let content = match command.data.name.as_str() {
+            let embed = match command.data.name.as_str() {
                 "create_alert" => commands::create_alert::run(&self.database, user_id, &command.data.options).await,
                 "list_alerts" => commands::list_alerts::run(&self.database, user_id).await,
                 "delete_alerts" => commands::delete_alerts::run(&self.database, user_id, &command.data.options).await,
-                _ => "not implemented :(".to_string(),
+                _ => CreateEmbed::default().title("not implemented :(").to_owned(),
             };
 
             if let Err(why) = command
                 .create_interaction_response(&ctx.http, |response| {
                     response
                         .kind(InteractionResponseType::ChannelMessageWithSource)
-                        .interaction_response_data(|message| message.content(content))
+                        .interaction_response_data(|message| message.add_embed(embed))
                 })
                 .await
             {
