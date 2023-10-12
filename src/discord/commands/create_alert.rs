@@ -17,7 +17,7 @@ pub async fn run(database: &sqlx::SqlitePool, user_id: i64, options: &[CommandDa
         return CreateEmbed::default()
             .title("Each user is limited to 3 alerts")
             .description("You can delete some alerts by using the slash command /delete_alerts.")
-            .color(0xDB4B4B)
+            .color(0x6AE5B3)
             .to_owned();
     }
     
