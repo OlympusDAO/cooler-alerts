@@ -1,3 +1,5 @@
 /target
 .env
 cooler-alerts.sqlite
+cooler-alerts.sqlite-wal
+cooler-alerts.sqlite-shm
