@@ -1,5 +1,5 @@
-mod hypernative;
 mod discord;
+mod hypernative;
 
 use tokio;
 use std::env;
@@ -7,7 +7,7 @@ use serenity::framework::standard::{StandardFramework, CommandResult};
 
 use serenity::model::prelude::*;
 use serenity::prelude::*;
-use hypernative::{AccessToken, create_custom_agent, delete_custom_agent};
+use hypernative::AccessToken;
 use discord::{GENERAL_GROUP, Bot};
 use sqlx;
 
@@ -37,7 +37,7 @@ async fn main() {
    // Run migrations, which updates the database's schema to the latest version.
    sqlx::migrate!("./migrations").run(&database).await.expect("Couldn't run database migrations");
 
-   let bot = Bot::new(database);
+   let bot = Bot::new(database, access_token);
 
    let intents = GatewayIntents::GUILD_MESSAGES
       | GatewayIntents::DIRECT_MESSAGES

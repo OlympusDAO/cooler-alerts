@@ -1,11 +1,31 @@
-
 use reqwest;
 use std::env;
 use serde::{Serialize, Deserialize, de};
 use chrono::{Duration, Utc};
+use std::error::Error;
+use std::fmt;
+
+#[derive(Debug)]
+struct CustomError(String);
+
+impl CustomError {
+    fn new(message: &str) -> Self {
+        CustomError(message.to_string())
+    }
+}
+
+impl Error for CustomError {}
+
+impl fmt::Display for CustomError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
+
 
 // -- API AUTHENTICATION --------------------------------------------------------------------------
 
+#[derive(Clone, Debug)]
 pub struct AccessToken {
     token: String,
     lifespan_in_seconds: i64,
@@ -39,7 +59,7 @@ pub struct LoginResponse {
     token: String
 }
 
-pub async fn refresh_bearer_token(access_token: &mut AccessToken) -> Result<(), Box<dyn std::error::Error>> {
+pub async fn refresh_bearer_token(access_token: &mut AccessToken) -> Result<(), Box<dyn Error + Send>> {
     let body = LoginRequest{
         email: env::var("HYPERNATIVE_USERNAME").expect("HYPERNATIVE_USERNAME not found in the .env file."),
         password: env::var("HYPERNATIVE_PASSWORD").expect("HYPERNATIVE_PASSWORD not found in the .env file."),
@@ -53,23 +73,24 @@ pub async fn refresh_bearer_token(access_token: &mut AccessToken) -> Result<(), 
         .header("Content-Type", "application/json")
         .body(body)
         .send()
-        .await?;
+        .await
+        .map_err(|err| Box::new(err) as Box<dyn Error + Send>)?;
 
     println!("{:#?}", response);
     if response.status().is_success() {
         println!("Authenticated successfully as: {}", "wartull@olympusdao.finance");
-        let json_response = response.text().await?;
-        let parsed_response: RequestResponse = serde_json::from_str(&json_response)?;
+        let json_response = response.text().await.map_err(|err| Box::new(err) as Box<dyn Error + Send>)?;
+        let parsed_response: RequestResponse = serde_json::from_str(&json_response).unwrap();
         match parsed_response.data {
             ResponseData::Login(login_data) => {
                 access_token.refresh(login_data.token);
                 Ok(())
             },
-            _ => Err("Unexpected API Response. Unable to update Hypernative auth token!".to_string().into())
+            _ => Err(Box::new(CustomError::new("Unexpected API Response. Unable to update Hypernative auth token!".into())))
         }
     } else {
         eprintln!("Request failed! Status: {}", response.status());
-        return Err("Unable to authenticate in the Hypernative platform!".to_string().into());
+        return Err(Box::new(CustomError::new("Unable to authenticate in the Hypernative platform!".into())));
     }
 }
 
@@ -84,14 +105,14 @@ pub struct RequestBody {
     agent_name: String,
     severity: Severity,
     #[serde(rename = "muteDuration")]
-    mute_duration: u32,
+    mute_duration: i64,
     state: State,
     rule: Rule,
     #[serde(rename = "channelsConfigurations")]
     channels_configurations: Vec<ChannelConfiguration>,
     #[serde(rename = "remindersConfigurations")]
     reminders_configurations: Vec<ChannelConfiguration>,
-    delay: u32,
+    delay: i64,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -107,7 +128,7 @@ pub struct Rule {
     #[serde(rename = "ruleString")]
     rule_string: String,
     #[serde(rename = "outputIndex")]
-    output_index: u32,
+    output_index: i64,
     #[serde(rename = "inputDataType")]
     input_data_type: Vec<String>,
     #[serde(rename = "outputDataType")]
@@ -273,10 +294,10 @@ impl Serialize for State {
 
 fn build_request_body(
     input: Vec<String>,
-    threshold: u32,
+    threshold: i64,
     email: Option<String>, 
     webhook: Option<String>
-) -> Result<RequestBody, Box<dyn std::error::Error>> {
+) -> Result<RequestBody, Box<dyn Error + Send>> {
     let cooler = input[0].clone();
     let loan = input[1].clone();
 
@@ -344,10 +365,10 @@ fn build_request_body(
 pub async fn create_custom_agent(
     access_token: &mut AccessToken,
     input: Vec<String>,
-    threshold: u32,
+    threshold: i64,
     email: Option<String>, 
     webhook: Option<String>
-) -> Result<Option<CustomAgentResponse>, Box<dyn std::error::Error>> {
+) -> Result<Option<CustomAgentResponse>, Box<dyn Error + Send>> {
     // Ensure token hasn't expired
     if access_token.is_expired() { refresh_bearer_token(access_token).await?; }
 
@@ -361,12 +382,15 @@ pub async fn create_custom_agent(
                 .header("Authorization", format!("Bearer {}", &access_token.token))
                 .body(json_body)
                 .send()
-                .await?;
+                .await
+                .map_err(|err| Box::new(err) as Box<dyn Error + Send>)?;
 
             if response.status().is_success() {
                 println!("Request successful! Status: {}", response.status());
-                let json_response = response.text().await?;
-                let parsed_response: RequestResponse = serde_json::from_str(&json_response)?;
+                let json_response = response.text().await
+                .map_err(|err| Box::new(err) as Box<dyn Error + Send>)?;
+                let parsed_response: RequestResponse = serde_json::from_str(&json_response)
+                .map_err(|err| Box::new(err) as Box<dyn Error + Send>)?;
                 match parsed_response.data {
                     ResponseData::CustomAgent(custom_agent_data) => Ok(Some(custom_agent_data)),
                     ResponseData::Login(login_data) => {
@@ -378,7 +402,7 @@ pub async fn create_custom_agent(
                 return Ok(None);
             } else {
                 eprintln!("Request failed! Status: {}", response.status());
-                return Err("Request failed!".to_string().into());
+                return Err(Box::new(CustomError::new("Request failed!".into())));
             }
         }
         Err(err) => {
@@ -404,7 +428,7 @@ pub enum ResponseData {
 
 #[derive(Deserialize, Debug)]
 pub struct CustomAgentResponse {
-    id: u32,
+    id: i64,
     rule: Rule,
     #[serde(rename = "alertPolicies")]
     alert_policies: Vec<AlertPolicy>,
@@ -417,7 +441,7 @@ pub struct AlertPolicy {
 }
 
 impl CustomAgentResponse {
-    pub fn agent_id(&self) -> &u32 {
+    pub fn agent_id(&self) -> &i64 {
         &self.id
     }
 
@@ -433,8 +457,8 @@ impl CustomAgentResponse {
 
 pub async fn delete_custom_agent(
     access_token: &mut AccessToken,
-    id: &u32
-) -> Result<(), Box<dyn std::error::Error>> {
+    id: &i64
+) -> Result<(), Box<dyn Error + Send>> {
     // Ensure token hasn't expired
     if access_token.is_expired() { refresh_bearer_token(access_token).await?; }
 
@@ -444,7 +468,8 @@ pub async fn delete_custom_agent(
         .header("Content-Type", "application/json")
         .header("Authorization", format!("Bearer {}", &access_token.token))
         .send()
-        .await?;
+        .await
+        .map_err(|err| Box::new(err) as Box<dyn Error + Send>)?;;
 
     if response.status().is_success() {
         println!("Request successful! Status: {}", response.status());

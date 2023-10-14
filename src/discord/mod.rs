@@ -7,7 +7,10 @@ use serenity::model::application::command::Command;
 use serenity::model::application::interaction::{Interaction, InteractionResponseType};
 use serenity::framework::standard::macros::{command, group};
 use serenity::prelude::*;
-use std::fmt::Write;
+use std::sync::Arc;
+use tokio::sync::Mutex;
+
+use crate::hypernative::AccessToken;
 use sqlx;
 
 #[group]
@@ -15,11 +18,12 @@ pub struct General;
 
 pub struct Bot {
     database: sqlx::SqlitePool,
+    access_token: Arc<Mutex<AccessToken>>,
 }
 
 impl Bot {
-    pub fn new(database: sqlx::SqlitePool) -> Self {
-        Self { database }
+    pub fn new(database: sqlx::SqlitePool, access_token: AccessToken) -> Self {
+        Self { database, access_token: Arc::new(Mutex::new(access_token)) }
     }
 }
 
@@ -32,7 +36,7 @@ impl EventHandler for Bot {
             let user_id = command.user.id.0 as i64;
 
             let embed = match command.data.name.as_str() {
-                "create_alert" => commands::create_alert::run(&self.database, user_id, &command.data.options).await,
+                "create_alert" => commands::create_alert::run(&self.database, &self.access_token, user_id, &command.data.options).await,
                 "list_alerts" => commands::list_alerts::run(&self.database, user_id).await,
                 "delete_alerts" => commands::delete_alerts::run(&self.database, user_id, &command.data.options).await,
                 _ => CreateEmbed::default().title("not implemented :(").to_owned(),
