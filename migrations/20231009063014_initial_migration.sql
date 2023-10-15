@@ -5,5 +5,6 @@ CREATE TABLE alerts (
     cooler TEXT NOT NULL,
     loan_id INTEGER NOT NULL,
     threshold INTEGER NOT NULL,
-    webhook_url TEXT NOT NULL
+    webhook_url TEXT,
+    email TEXT
 )

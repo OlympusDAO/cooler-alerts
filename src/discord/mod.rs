@@ -36,9 +36,9 @@ impl EventHandler for Bot {
             let user_id = command.user.id.0 as i64;
 
             let embed = match command.data.name.as_str() {
-                "create_alert" => commands::create_alert::run(&self.database, &self.access_token, user_id, &command.data.options).await,
                 "list_alerts" => commands::list_alerts::run(&self.database, user_id).await,
-                "delete_alerts" => commands::delete_alerts::run(&self.database, user_id, &command.data.options).await,
+                "create_alert" => commands::create_alert::run(&self.database, &self.access_token, user_id, &command.data.options).await,
+                "delete_alerts" => commands::delete_alerts::run(&self.database, &self.access_token, user_id, &command.data.options).await,
                 _ => CreateEmbed::default().title("not implemented :(").to_owned(),
             };
 

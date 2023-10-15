@@ -22,7 +22,6 @@ impl fmt::Display for CustomError {
     }
 }
 
-
 // -- API AUTHENTICATION --------------------------------------------------------------------------
 
 #[derive(Clone, Debug)]
@@ -65,7 +64,6 @@ pub async fn refresh_bearer_token(access_token: &mut AccessToken) -> Result<(), 
         password: env::var("HYPERNATIVE_PASSWORD").expect("HYPERNATIVE_PASSWORD not found in the .env file."),
     };
     let body = serde_json::to_string(&body).expect("Failed to serialize RequestBody");
-    println!("{:#?}", body);
     
     let response = reqwest::Client::new()
         .post("https://api.hypernative.xyz/auth/login")
@@ -76,9 +74,7 @@ pub async fn refresh_bearer_token(access_token: &mut AccessToken) -> Result<(), 
         .await
         .map_err(|err| Box::new(err) as Box<dyn Error + Send>)?;
 
-    println!("{:#?}", response);
     if response.status().is_success() {
-        println!("Authenticated successfully as: {}", "wartull@olympusdao.finance");
         let json_response = response.text().await.map_err(|err| Box::new(err) as Box<dyn Error + Send>)?;
         let parsed_response: RequestResponse = serde_json::from_str(&json_response).unwrap();
         match parsed_response.data {
@@ -306,9 +302,9 @@ fn build_request_body(
         input: input,
         func_sig: String::from("timeToExpiry(address cooler_, uint256 id_)"),
         file_name: String::from(""),
-        operands: vec![threshold.to_string()],
+        operands: vec![(threshold * 24 * 3600).to_string()],
         operator: String::from("lt"),
-        rule_string: format!("Cooler ({cooler}) Loan (id: {loan}) expires in less than {} days", threshold/(24*3600)),
+        rule_string: format!("Cooler ({cooler}) Loan (id: {loan}) expires in less than {} days", threshold),
         output_index: 0,
         input_data_type: vec![String::from("address"), String::from("uint256")],
         output_data_type: vec![String::from("uint256")],
@@ -352,7 +348,7 @@ fn build_request_body(
         agent_name: String::from("COOLER ALERTS"),
         severity: Severity::Medium,
         mute_duration: 0,
-        state: State::Disabled,
+        state: State::Enabled,
         rule,
         channels_configurations: channel_configurations,
         reminders_configurations: vec![],
@@ -386,7 +382,6 @@ pub async fn create_custom_agent(
                 .map_err(|err| Box::new(err) as Box<dyn Error + Send>)?;
 
             if response.status().is_success() {
-                println!("Request successful! Status: {}", response.status());
                 let json_response = response.text().await
                 .map_err(|err| Box::new(err) as Box<dyn Error + Send>)?;
                 let parsed_response: RequestResponse = serde_json::from_str(&json_response)
@@ -399,6 +394,7 @@ pub async fn create_custom_agent(
                 }
             } else if response.status().is_server_error() {
                 eprintln!("Request failed! Status: {}", response.status());
+                eprintln!("Reason: {:#?}", response);
                 return Ok(None);
             } else {
                 eprintln!("Request failed! Status: {}", response.status());
