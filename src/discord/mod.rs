@@ -1,3 +1,4 @@
+// pub mod alerts;
 pub mod commands;
 
 use serenity::async_trait;
@@ -5,7 +6,7 @@ use serenity::model::prelude::*;
 use serenity::builder::CreateEmbed;
 use serenity::model::application::command::Command;
 use serenity::model::application::interaction::{Interaction, InteractionResponseType};
-use serenity::framework::standard::macros::{command, group};
+use serenity::framework::standard::macros::group;
 use serenity::prelude::*;
 use std::sync::Arc;
 use tokio::sync::Mutex;
