@@ -10,7 +10,23 @@ Cooler Alerts offers a range of functionalities, split across different modules 
 - **Registry Module**: Leveraging `sqlx`, this module takes care of user alert registrations and management. It provides comprehensive methods for interacting with the bot's database, ensuring efficient data handling.
 - **Listener Module**: Built on `ethers-rs`, this module actively monitors on-chain state. It triggers alerts for subscribed users when specific conditions are met. This can easily be expanded, allowing integration of new methods such as listening to additional on-chain events, monitoring mempools, or even integrating off-chain data feeds. For alerting users, the Listener Module supports two distinct methods: webhook notifications and email alerts.
 
-## Quick Start Guide
+## Using the bot
+
+The bot has 3 different slash commands:
+- `create_alert`: Used to store new alerts into the DB. Has the following parameters:
+   - `cooler`: Address of the Cooler contract to be monitored.
+   - `loan_id`: ID of the loan to be monitored.
+   - `threshold`: Days before expiration that the user should be notified in advance.
+   - `webhook_url (optional)`: URL where the alerts should be sent. Example: `https://discord.com/api/webhooks/123/XXX`".
+   - `email (optional)`: Email address where the alerts should be sent. Example: `cooler_alerts@yxz.com`.
+- `list_alerts`: Used to list all the existing alerts user in the DB. Only lists those registered by the user executed the slash command.
+- `delete_alerts`: Used to delete user alerts of a given Cooler contract. Has the following parameters:
+   - `cooler`: Address of the Cooler contract to be deleted.
+   - `loan_id (optional)`: ID of the loan to be deleted. If not informed, all the alerts for that Cooler contracts will be deleted.
+
+Since Cooler Loans are not time sensible because of their fix-term nature, the state monitoring cadence is set to 12h. 
+
+## Developer Quick Start Guide
 
 To get Cooler Alerts up and running, follow these simple steps:
 
@@ -25,10 +41,6 @@ To get Cooler Alerts up and running, follow these simple steps:
 4. **Install Dependencies**: Ensure you have the necessary libraries installed. The bot requires `ethers-rs`, `serenity`, and `sqlx` to function correctly.
 
 5. **Run the Bot**: Once configured and dependencies are in place, use `cargo build && cargo run` to activate the bot and start sending alerts to your Discord server.
-
-## Using the bot
-
-// TODO
 
 ## Contributing
 
