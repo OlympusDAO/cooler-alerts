@@ -28,7 +28,7 @@ Cooler Alerts offers a range of functionalities, split across different modules 
 - **Registry Module**: Leveraging `sqlx`, this module takes care of user alert registrations and management. It provides comprehensive methods for interacting with the bot's database, ensuring efficient data handling.
 - **Listener Module**: Built on `ethers-rs`, this module actively monitors on-chain state. It triggers alerts for subscribed users when specific conditions are met. This can easily be expanded, allowing integration of new methods such as listening to additional on-chain events, monitoring mempools, or even integrating off-chain data feeds. For alerting users, the Listener Module supports two distinct methods: webhook notifications and email alerts.
 
-## Developer Quick Start Guide
+## Quick Start Guide
 
 To get Cooler Alerts up and running, follow these simple steps:
 
