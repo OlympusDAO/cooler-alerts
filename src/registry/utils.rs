@@ -76,7 +76,7 @@ pub async fn delete_user_alerts_by_cooler(database: &sqlx::SqlitePool, user_id: 
     match loan_id {
         Some(loan_id) => {
             match sqlx::query!("DELETE FROM alerts WHERE user_id = ? AND cooler = ? AND loan_id = ?", user_id, cooler, loan_id)
-            .fetch_one(database)
+            .fetch_all(database)
             .await {
                 Ok(_) => Ok(()),
                 Err(error) => Err(Box::new(error))
@@ -84,7 +84,7 @@ pub async fn delete_user_alerts_by_cooler(database: &sqlx::SqlitePool, user_id: 
         },
         None => {
             match sqlx::query!("DELETE FROM alerts WHERE user_id = ? AND cooler = ?", user_id, cooler)
-            .fetch_one(database)
+            .fetch_all(database)
             .await {
                 Ok(_) => Ok(()),
                 Err(error) => Err(Box::new(error))
