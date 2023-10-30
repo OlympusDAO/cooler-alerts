@@ -6,6 +6,8 @@ Welcome to Cooler Alerts, a rust-based framework designed for creating a discord
 
 The Cooler Alerts bot has been designed so that users of the Olympus Protocol can easily setup reminders to manage their Cooler Loans before expiration. Alerts can be configured to be sent either by webhook or by email.
 
+Since Cooler Loans are not time sensible because of their fix-term nature, the state monitoring cadence is set to 12h. 
+
 The bot has 3 different slash commands:
 - `create_alert`: Used to store new alerts into the DB. Has the following parameters:
    - `cooler`: Address of the Cooler contract to be monitored.
@@ -16,9 +18,7 @@ The bot has 3 different slash commands:
 - `list_alerts`: Used to list all the existing alerts user in the DB. Only lists those registered by the user executed the slash command.
 - `delete_alerts`: Used to delete user alerts of a given Cooler contract. Has the following parameters:
    - `cooler`: Address of the Cooler contract to be deleted.
-   - `loan_id (optional)`: ID of the loan to be deleted. If not informed, all the alerts for that Cooler contracts will be deleted.
-
-Since Cooler Loans are not time sensible because of their fix-term nature, the state monitoring cadence is set to 12h. 
+   - `loan_id` (optional): ID of the loan to be deleted. If not informed, all the alerts for that Cooler contracts will be deleted.
 
 ## Features
 
