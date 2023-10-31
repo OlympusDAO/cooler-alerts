@@ -38,11 +38,17 @@ To get Cooler Alerts up and running, follow these simple steps:
 2. Create a new gmail account (using an existing one is not recommended as if you make the `.env` file public by mistake anyone could use that email) and enable the app password.
    - Check [this tutorial](https://support.google.com/accounts/answer/185839?hl=en) to enable 2FA.
    - Check [this tutorial](https://support.google.com/mail/answer/185833?hl=en) to create an app password.
-3. **Configure the Bot**: Start by setting the `.env` file based off `example.env`, which is located at the root of the repository. This file contains essential settings that control the bot's functionalities, including the Discord API token, database connection string, the RPC connection, and the email credentials.
+3. Download the [SQLx CLI](https://github.com/launchbadge/sqlx/tree/main/sqlx-cli) and setup a new database with the following commands:
+   ```
+   sqlx database create --database-url sqlite:NAME_OF_YOUR_DB.sqlite
+   sqlx database setup --database-url sqlite:NAME_OF_YOUR_DB.sqlite
+   sqlx migrate run
+   ```
+4. **Configure the Bot**: Start by setting the `.env` file based off `example.env`, which is located at the root of the repository. This file contains essential settings that control the bot's functionalities, including the Discord API token, database connection string, the RPC connection, or the email credentials.
 
-4. **Install Dependencies**: Ensure you have the necessary libraries installed. The bot requires `ethers-rs`, `serenity`, and `sqlx` to function correctly.
+5. **Install Dependencies**: Run `cargo build` and ensure that the necessary libraries listed on `Cargo.toml` have been successfully installed.
 
-5. **Run the Bot**: Once configured and dependencies are in place, use `cargo build && cargo run` to activate the bot and start sending alerts to your Discord server.
+6. **Run the Bot**: Once the app is built and configured, use `cargo run` to activate the bot and start sending alerts to your Discord server.
 
 ## Contributing
 
