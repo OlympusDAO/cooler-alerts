@@ -9,6 +9,7 @@ use lettre::{
     Message, SmtpTransport, Transport,
 };
 
+// Public method to send alerts via discord webhooks.
 pub async fn send_webhook(webhook_url: &str, cooler: &str, loan_id: i64, days: u64) {
     let http = Http::new("");
     let webhook = Webhook::from_url(&http, &webhook_url).await.unwrap();
@@ -32,6 +33,7 @@ pub async fn send_webhook(webhook_url: &str, cooler: &str, loan_id: i64, days: u
         .expect("Could not execute webhook.");
 }
 
+// Public method to send alerts via an email.
 pub async fn send_email(creds: Credentials, receiver: &str, cooler: &str, loan_id: i64, days: u64) {
     let email = Message::builder()
         .from("Cooler Monitoring <test@gmail.com>".parse().unwrap())
