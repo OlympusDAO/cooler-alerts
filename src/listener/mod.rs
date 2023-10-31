@@ -18,7 +18,6 @@ abigen!(
 );
 
 pub async fn monitor(contract_address: Address, provider: Arc<Provider<Http>>, database: &sqlx::SqlitePool, email_creds: Credentials) {
-    // Initialize a new instance of the Weth/Dai Uniswap V2 pair contract
     let contract = ICoolerMonitoring::new(contract_address, provider);
     println!("\n\nMonitoring contract: {:?}", contract);
     loop {
@@ -38,8 +37,9 @@ pub async fn monitor(contract_address: Address, provider: Arc<Provider<Http>>, d
                 cooler,
                 loan_id
             ).call().await {
+                // Check wether an alert should be sent or not.
                 if time_left <= threshold {
-                    // Send webhook alerts
+                    // Send webhook alerts.
                     match alerts[i].get_webhook_url() {
                         Some(webhook_url) => {
                             send_webhook(
@@ -48,6 +48,7 @@ pub async fn monitor(contract_address: Address, provider: Arc<Provider<Http>>, d
                                 alerts[i].get_loan_id(),
                                 time_left.as_u64() / 24 / 3600
                             ).await;
+                            // Deactivate the alert after informing the user.
                             match deactivate_alert(database, alerts[i].get_alert_id()).await {
                                 Ok(_) => (),
                                 Err(_) => {
@@ -62,7 +63,7 @@ pub async fn monitor(contract_address: Address, provider: Arc<Provider<Http>>, d
                         },
                         None => (),
                     };
-                    // Send email alerts
+                    // Send email alerts.
                     match alerts[i].get_email() {
                         Some(receiver) => {
                             send_email(
@@ -72,6 +73,7 @@ pub async fn monitor(contract_address: Address, provider: Arc<Provider<Http>>, d
                                 alerts[i].get_loan_id(),
                                 time_left.as_u64() / 24 / 3600
                             ).await;
+                            // Deactivate the alert after informing the user.
                             match deactivate_alert(database, alerts[i].get_alert_id()).await {
                                 Ok(_) => (),
                                 Err(_) => {
@@ -89,7 +91,7 @@ pub async fn monitor(contract_address: Address, provider: Arc<Provider<Http>>, d
                 }
             }
         }
-        // sleep(Duration::from_secs(24*3600)).await;
-        sleep(Duration::from_secs(30)).await;
+        // Monitor network state every 12 hours.
+        sleep(Duration::from_secs(12*3600)).await;
     }
 }

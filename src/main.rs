@@ -70,18 +70,18 @@ async fn main() -> Result<(), Box<dyn Error>> {
     .await
     .expect("Couldn't connect to database");
 
-    // Run migrations, which updates the database's schema to the latest version.
+    // Update DB schema to the latest version.
     sqlx::migrate!("./migrations").run(&database).await.expect("Couldn't run database migrations");
 
-    // Configure the blockchain scanner
+    // Initialize the required system configuration.
     let config: Config = Config::new(database.clone()).await;
 
-    // Thread for checking what block we're on.
+    // New thread to monitor the chain.
     tokio::spawn(async move {
         listener::monitor(monitoring_address, config.get_provider(), config.get_db(), config.get_email_creds()).await;
     });
 
-    // Configure and initialize the Discord Bot to manage alerts.
+    // Configure and initialize the Discord bot to manage alerts.
     let framework = StandardFramework::new()
         .configure(|c| c.prefix("~"))
         .group(&GENERAL_GROUP);
@@ -90,6 +90,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let intents = GatewayIntents::GUILD_MESSAGES
         | GatewayIntents::DIRECT_MESSAGES
         | GatewayIntents::MESSAGE_CONTENT;
+    
     let mut discord_client =
         Client::builder(&bot_token, intents)
             .event_handler(bot)

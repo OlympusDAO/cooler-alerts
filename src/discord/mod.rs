@@ -24,6 +24,27 @@ impl Bot {
 
 #[async_trait]
 impl EventHandler for Bot {
+    // Register the bot slash commands.
+    async fn ready(&self, ctx: Context, ready: Ready) {
+        println!("{} is connected!", ready.user.name);
+
+        let bot_commands = Command::set_global_application_commands(&ctx.http, |commands| {
+            commands
+                .create_application_command(|command| {
+                    commands::create_alert::register(command)
+                })
+                .create_application_command(|command| {
+                    commands::list_alerts::register(command)
+                })
+                .create_application_command(|command| {
+                    commands::delete_alerts::register(command)
+                })
+        }).await;
+
+        println!("The following global slash commands have been created: {:#?}", bot_commands);
+    }
+
+    // Setup functions to handle the slash commands.
     async fn interaction_create(&self, ctx: Context, interaction: Interaction) {
         if let Interaction::ApplicationCommand(command) = interaction {
             println!("Received command interaction: {:#?}", command);
@@ -48,24 +69,5 @@ impl EventHandler for Bot {
                 println!("Cannot respond to slash command: {}", why);
             }
         }
-    }
-
-    async fn ready(&self, ctx: Context, ready: Ready) {
-        println!("{} is connected!", ready.user.name);
-
-        let bot_commands = Command::set_global_application_commands(&ctx.http, |commands| {
-            commands
-                .create_application_command(|command| {
-                    commands::create_alert::register(command)
-                })
-                .create_application_command(|command| {
-                    commands::list_alerts::register(command)
-                })
-                .create_application_command(|command| {
-                    commands::delete_alerts::register(command)
-                })
-        }).await;
-
-        println!("I created the following global slash command: {:#?}", bot_commands);
     }
 }
