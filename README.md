@@ -1,6 +1,14 @@
 # Cooler Alerts: Discord Bot for Blockchain State Monitoring
 
-Welcome to Cooler Alerts, a rust-based framework designed for creating a discord bot that monitores on-chain state and facilitates user subscriptions for custom alerts. Developed with `ethers-rs`, `serenity`, and `sqlx`, this framework is designed for easy extensibility and customization, catering to diverse monitoring needs.
+Welcome to Cooler Alerts, a rust-based discord bot that monitores on-chain state and facilitates user subscriptions for custom alerts. Developed with `ethers-rs`, `serenity`, and `sqlx`, this framework is designed for easy extensibility and customization, allowing developers to fulfill diverse monitoring needs.
+
+## Features
+
+Cooler Alerts offers a range of functionalities, split across different modules for optimal organization and efficiency:
+
+- **Discord Module**: Utilizing `serenity`, this module is the heart of Discord interaction. It sets up and manages slash commands, ensuring seamless communication with the Discord API.
+- **Registry Module**: Leveraging `sqlx`, this module takes care of user alert registrations and management. It provides comprehensive methods for interacting with the bot's database, ensuring efficient data handling.
+- **Listener Module**: Built on `ethers-rs`, this module actively monitors on-chain state. It triggers alerts for subscribed users when specific conditions are met. This can easily be expanded, allowing integration of new methods such as listening to additional on-chain events, monitoring mempools, or even integrating off-chain data feeds. For alerting users, the Listener Module supports two distinct methods: webhook notifications and email alerts.
 
 ## Using the bot
 
@@ -19,14 +27,6 @@ The bot has 3 different slash commands:
 - `delete_alerts`: Used to delete user alerts of a given Cooler contract. Has the following parameters:
    - `cooler`: Address of the Cooler contract to be deleted.
    - `loan_id` (optional): ID of the loan to be deleted. If not informed, all the alerts for that Cooler contracts will be deleted.
-
-## Features
-
-Cooler Alerts offers a range of functionalities, split across different modules for optimal organization and efficiency:
-
-- **Discord Module**: Utilizing `serenity`, this module is the heart of Discord interaction. It sets up and manages slash commands, ensuring seamless communication with the Discord API.
-- **Registry Module**: Leveraging `sqlx`, this module takes care of user alert registrations and management. It provides comprehensive methods for interacting with the bot's database, ensuring efficient data handling.
-- **Listener Module**: Built on `ethers-rs`, this module actively monitors on-chain state. It triggers alerts for subscribed users when specific conditions are met. This can easily be expanded, allowing integration of new methods such as listening to additional on-chain events, monitoring mempools, or even integrating off-chain data feeds. For alerting users, the Listener Module supports two distinct methods: webhook notifications and email alerts.
 
 ## Developer Quick Start Guide
 
