@@ -32,20 +32,20 @@ The bot has 3 different slash commands:
 
 To get Cooler Alerts up and running, follow these simple steps:
 
+0. Clone this repo.
 1. Create your own discord bot.
    - Check [this tutorial](https://discordjs.guide/preparations/setting-up-a-bot-application.html#creating-your-bot) to create your own discord bot and get its token.
    - Check [this tutorial](https://discordjs.guide/preparations/adding-your-bot-to-servers.html#bot-invite-links) to add the bot to your personal server.
 2. Create a new gmail account (using an existing one is not recommended as if you make the `.env` file public by mistake anyone could use that email) and enable the app password.
    - Check [this tutorial](https://support.google.com/accounts/answer/185839?hl=en) to enable 2FA.
    - Check [this tutorial](https://support.google.com/mail/answer/185833?hl=en) to create an app password.
-3. Download the [SQLx CLI](https://github.com/launchbadge/sqlx/tree/main/sqlx-cli) and setup a new database with the following commands:
+3. **Configure the Bot**: Start by setting the `.env` file based off `example.env`, which is located at the root of the repository. This file contains essential settings that control the bot's functionalities, including the Discord API token, database connection string, the RPC connection, or the email credentials.
+4. Download the [SQLx CLI](https://github.com/launchbadge/sqlx/tree/main/sqlx-cli) and setup a new database with the following commands:
    ```
    sqlx database create --database-url sqlite:NAME_OF_YOUR_DB.sqlite
    sqlx database setup --database-url sqlite:NAME_OF_YOUR_DB.sqlite
    sqlx migrate run
    ```
-4. **Configure the Bot**: Start by setting the `.env` file based off `example.env`, which is located at the root of the repository. This file contains essential settings that control the bot's functionalities, including the Discord API token, database connection string, the RPC connection, or the email credentials.
-
 5. **Install Dependencies**: Run `cargo build` and ensure that the necessary libraries listed on `Cargo.toml` have been successfully installed.
 
 6. **Run the Bot**: Once the app is built and configured, use `cargo run` to activate the bot and start sending alerts to your Discord server.
